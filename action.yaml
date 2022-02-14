@@ -1,0 +1,132 @@
+name: "ShellCheck"
+author: "Cloudfy9 <contact@cloudfy9.com>"
+description: "GitHub action for ShellCheck."
+inputs:
+  path:
+    description: "contains the path of shell script"
+    required: false
+    default: "."
+  ignore_paths:
+    description: "contains the path which you want to ignore for scannning"
+    required: false
+    default: ""
+  ignore_names:
+    description: "contains the names to ignore when running ShellCheck"
+    required: false
+    default: ""
+  severity:
+    description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
+    required: false
+    default: "error"
+  check_together:
+    description: "Run shellcheck on _all_ files at once, instead of one at a time"
+    required: false
+    default: ""
+  format:
+    description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
+    required: false
+    default: "checkstyle"
+  version:
+    description: "Specify a concrete version of ShellCheck to use"
+    required: false
+    default: "stable"
+outputs:
+  files:
+    description: A list of files with issues
+    value: ${{ steps.filepaths.outputs.filepaths }}
+  options:
+    description: The options used
+    value: ${{ steps.options.outputs.options }}
+branding:
+  icon: "terminal"
+  color: "blue"
+runs:
+  using: "composite"
+  steps:
+    - name: Download shellcheck
+      shell: bash
+      run: |
+        if [[ "${{ runner.os }}" == "macOS" ]]; then
+          osvariant="darwin"
+        else
+          osvariant="linux"
+        fi
+
+        scversion="${{ inputs.version }}"
+        baseurl="https://github.com/koalaman/shellcheck/releases/download"
+
+        curl -Lso "${{ github.action_path }}/sc.tar.xz" \
+          "${baseurl}/${scversion}/shellcheck-${scversion}.${osvariant}.x86_64.tar.xz"
+
+        tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
+        mv "${{ github.action_path }}/shellcheck-${scversion}/shellcheck" \
+          "${{ github.action_path }}/shellcheck"
+
+    - name: Display shellcheck version
+      shell: bash
+      run: |
+        "${{ github.action_path }}/shellcheck" --version
+
+    - name: Set options
+      shell: bash
+      id: options
+      run: |
+        declare -a options
+        if [[ -n "${{ inputs.severity }}" ]]; then
+          options+=("-S ${{ inputs.severity }}")
+        fi
+        options+=("--format=${{ inputs.format }}")
+        echo "::set-output name=options::${options[@]}"
+
+    - name: Gather excluded paths
+      shell: bash
+      id: exclude
+      run: |
+        declare -a excludes
+        excludes+=("! -path \"*./.git/*\"")
+        excludes+=("! -path \"*.go\"")
+        excludes+=("! -path \"*/mvnw\"")
+        if [[ -n "${{ inputs.ignore_paths }}" ]]; then
+          for path in ${{ inputs.ignore_paths }}; do
+            echo "::debug:: Adding "$path" to excludes"
+            excludes+=("! -path \"*./$path/*\"")
+            excludes+=("! -path \"*/$path/*\"")
+          done
+        fi
+
+        for name in ${{ inputs.ignore_names }}; do
+          echo "::debug:: Adding "$name" to excludes"
+          excludes+=("! -name $name")
+        done
+        echo "::set-output name=excludes::${excludes[@]}"
+
+    - name: Run the file check
+      id: check
+      shell: bash
+      run: |
+        statuscode=0
+
+        if [[ -n "${{ inputs.check_together }}" ]]; then
+           "${{ github.action_path }}/shellcheck" \
+           ${{ steps.options.outputs.options }} \
+           ${{ steps.filepaths.outputs.filepaths }} || statuscode=$?
+        else
+          for file in ${{ steps.filepaths.outputs.filepaths }}; do
+            echo "::debug::Checking $file"
+            "${{ github.action_path }}/shellcheck" \
+            ${{ steps.options.outputs.options }} \
+            "$file" || statuscode=$?;
+          done
+        fi
+
+        echo "::set-output name=statuscode::$statuscode"
+
+    - name: Print information
+      shell: bash
+      run: |
+        echo "Files: ${{steps.filepaths.outputs.filepaths}}"
+        echo "Excluded: ${{ steps.exclude.outputs.excludes }}"
+        echo "Options: ${{ steps.options.outputs.options }}"
+        echo "Status code: ${{steps.check.outputs.statuscode}}"
+
+        exit ${{steps.check.outputs.statuscode}}
