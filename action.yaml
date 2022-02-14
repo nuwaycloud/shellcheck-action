@@ -3,91 +3,68 @@ author: "Cloudfy9 <contact@cloudfy9.com>"
 description: "GitHub action for ShellCheck."
 inputs:
   additional_files:
-    description: "A space separated list of additional filename to check"
+    description: "This input contains a space separated list of additional filename to check"
     required: false
     default: ""
   ignore:
-    description: "Paths to ignore when running ShellCheck"
+    description: "This input contains the paths to ignore when running shellcheck"
     required: false
     default: ""
   ignore_paths:
-    description: "Paths to ignore when running ShellCheck"
+    description: "This input contains the paths to ignore when running shellcheck"
     required: false
     default: ""
   ignore_names:
-    description: "Names to ignore when running ShellCheck"
+    description: "This input contains the names to ignore when running shellcheck"
     required: false
     default: ""
   severity:
-    description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
+    description: "This input contains the minimum severity of errors to consider. Options: [error, warning, info, style]"
     required: false
-    default: ""
+    default: "error"
   check_together:
-    description: "Run shellcheck on _all_ files at once, instead of one at a time"
+    description: "This input controls the run shellcheck on _all_ files at once, instead of one at a time"
     required: false
     default: ""
   scandir:
-    description: "Directory to be searched for files. Defaults to ."
+    description: "This input contains the directory to be searched for files. Defaults to ."
     required: false
     default: "."
-  disable_matcher:
-    description: "Set to true to skip using problem-matcher"
-    required: false
-    default: "false"
   format:
-    description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
+    description: "This input contains the output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
-    default: "gcc"
+    default: "checkstyle"
   version:
-    description: "Specify a concrete version of ShellCheck to use"
+    description: "This input contains the shellcheck version to install"
     required: false
     default: "stable"
 outputs:
   files:
-    description: A list of files with issues
+    description: This output contains a list of files with issues
     value: ${{ steps.filepaths.outputs.filepaths }}
   options:
-    description: The options used
+    description: This output contains the options used
     value: ${{ steps.options.outputs.options }}
 branding:
   icon: "terminal"
-  color: "gray-dark"
+  color: "blue"
 runs:
   using: "composite"
   steps:
-    - name: Enable problem-matcher
+    - name: Download ShellCheck
       shell: bash
       run: |
-        problem_matcher_file="${{ github.action_path }}/.github/problem-matcher-${{ inputs.format }}.json"
-        if [[ ${{ inputs.disable_matcher }} != "true" && -f "$problem_matcher_file"  ]]; then
-          echo "::add-matcher::$problem_matcher_file"
-        fi
-
-    - name: Download shellcheck
-      shell: bash
-      run: |
-        if [[ "${{ runner.os }}" == "macOS" ]]; then
-          osvariant="darwin"
-        else
-          osvariant="linux"
-        fi
-
-        scversion="${{ inputs.version }}"
-        baseurl="https://github.com/koalaman/shellcheck/releases/download"
-
-        curl -Lso "${{ github.action_path }}/sc.tar.xz" \
-          "${baseurl}/${scversion}/shellcheck-${scversion}.${osvariant}.x86_64.tar.xz"
-
+        download_url="https://github.com/koalaman/shellcheck/releases/download/${{ inputs.version }}/shellcheck-${{ inputs.version }}.linux.x86_64.tar.xz"
+        curl -Lso "${{ github.action_path }}/sc.tar.xz" "$download_url"
         tar -xf "${{ github.action_path }}/sc.tar.xz" -C "${{ github.action_path }}"
-        mv "${{ github.action_path }}/shellcheck-${scversion}/shellcheck" \
-          "${{ github.action_path }}/shellcheck"
-
-    - name: Display shellcheck version
+        mv "${{ github.action_path }}/shellcheck-${{ inputs.version }}/shellcheck" "${{ github.action_path }}/shellcheck"
+          
+    - name: Display ShellCheck Version
       shell: bash
       run: |
         "${{ github.action_path }}/shellcheck" --version
 
-    - name: Set options
+    - name: Set Options
       shell: bash
       id: options
       run: |
@@ -98,7 +75,7 @@ runs:
         options+=("--format=${{ inputs.format }}")
         echo "::set-output name=options::${options[@]}"
 
-    - name: Gather excluded paths
+    - name: Gather Excluded Paths
       shell: bash
       id: exclude
       run: |
@@ -127,18 +104,7 @@ runs:
         done
         echo "::set-output name=excludes::${excludes[@]}"
 
-    - name: Gather additional files
-      shell: bash
-      id: additional
-      run: |
-        declare -a files
-        for file in ${{ inputs.additional_files }}; do
-          echo "::debug:: Adding "$file" to excludes"
-          files+=("-o -name \"*$file\"")
-        done
-        echo "::set-output name=files::${files[@]}"
-
-    - name: Gather base file paths
+    - name: Gather Base File Paths
       shell: bash
       id: filepaths
       run: |
@@ -186,7 +152,7 @@ runs:
         done
         echo "::set-output name=filepaths::${filepaths[@]}"
 
-    - name: Run the file check
+    - name: Run The File Check
       id: check
       shell: bash
       run: |
