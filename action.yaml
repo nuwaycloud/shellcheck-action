@@ -2,30 +2,42 @@ name: "ShellCheck"
 author: "Cloudfy9 <contact@cloudfy9.com>"
 description: "GitHub action for ShellCheck."
 inputs:
-  path:
-    description: "contains the path of shell script"
+  additional_files:
+    description: "A space separated list of additional filename to check"
     required: false
-    default: "."
+    default: ""
+  ignore:
+    description: "Paths to ignore when running ShellCheck"
+    required: false
+    default: ""
   ignore_paths:
-    description: "contains the path which you want to ignore for scannning"
+    description: "Paths to ignore when running ShellCheck"
     required: false
     default: ""
   ignore_names:
-    description: "contains the names to ignore when running ShellCheck"
+    description: "Names to ignore when running ShellCheck"
     required: false
     default: ""
   severity:
     description: "Minimum severity of errors to consider. Options: [error, warning, info, style]"
     required: false
-    default: "error"
+    default: ""
   check_together:
     description: "Run shellcheck on _all_ files at once, instead of one at a time"
     required: false
     default: ""
+  scandir:
+    description: "Directory to be searched for files. Defaults to ."
+    required: false
+    default: "."
+  disable_matcher:
+    description: "Set to true to skip using problem-matcher"
+    required: false
+    default: "false"
   format:
     description: "Output format (checkstyle, diff, gcc, json, json1, quiet, tty)"
     required: false
-    default: "checkstyle"
+    default: "gcc"
   version:
     description: "Specify a concrete version of ShellCheck to use"
     required: false
@@ -39,10 +51,18 @@ outputs:
     value: ${{ steps.options.outputs.options }}
 branding:
   icon: "terminal"
-  color: "blue"
+  color: "gray-dark"
 runs:
   using: "composite"
   steps:
+    - name: Enable problem-matcher
+      shell: bash
+      run: |
+        problem_matcher_file="${{ github.action_path }}/.github/problem-matcher-${{ inputs.format }}.json"
+        if [[ ${{ inputs.disable_matcher }} != "true" && -f "$problem_matcher_file"  ]]; then
+          echo "::add-matcher::$problem_matcher_file"
+        fi
+
     - name: Download shellcheck
       shell: bash
       run: |
@@ -86,7 +106,14 @@ runs:
         excludes+=("! -path \"*./.git/*\"")
         excludes+=("! -path \"*.go\"")
         excludes+=("! -path \"*/mvnw\"")
-        if [[ -n "${{ inputs.ignore_paths }}" ]]; then
+        if [[ -n "${{ inputs.ignore }}" ]]; then
+          echo "::warning::ignore is deprecated. Please use ignore_paths instead"
+          for path in ${{ inputs.ignore }}; do
+            echo "::debug:: Adding "$path" to excludes"
+            excludes+=("! -path \"*./$path/*\"")
+            excludes+=("! -path \"*/$path/*\"")
+          done
+        else
           for path in ${{ inputs.ignore_paths }}; do
             echo "::debug:: Adding "$path" to excludes"
             excludes+=("! -path \"*./$path/*\"")
@@ -99,6 +126,65 @@ runs:
           excludes+=("! -name $name")
         done
         echo "::set-output name=excludes::${excludes[@]}"
+
+    - name: Gather additional files
+      shell: bash
+      id: additional
+      run: |
+        declare -a files
+        for file in ${{ inputs.additional_files }}; do
+          echo "::debug:: Adding "$file" to excludes"
+          files+=("-o -name \"*$file\"")
+        done
+        echo "::set-output name=files::${files[@]}"
+
+    - name: Gather base file paths
+      shell: bash
+      id: filepaths
+      run: |
+        declare -a filepaths
+        shebangregex="^#! */[^ ]*/(env *)?[abk]*sh"
+
+        for path in $(find "${{ inputs.scandir }}" \
+            -type f -type f ${{ steps.exclude.outputs.excludes }} \
+            '(' \
+            -name '*.bash' \
+            -o -name '.bashrc' \
+            -o -name 'bashrc' \
+            -o -name '.bash_aliases' \
+            -o -name '.bash_completion' \
+            -o -name '.bash_login' \
+            -o -name '.bash_logout' \
+            -o -name '.bash_profile' \
+            -o -name 'bash_profile' \
+            -o -name '*.ksh' \
+            -o -name 'suid_profile' \
+            -o -name '*.zsh' \
+            -o -name '.zlogin' \
+            -o -name 'zlogin' \
+            -o -name '.zlogout' \
+            -o -name 'zlogout' \
+            -o -name '.zprofile' \
+            -o -name 'zprofile' \
+            -o -name '.zsenv' \
+            -o -name 'zsenv' \
+            -o -name '.zshrc' \
+            -o -name 'zshrc' \
+            -o -name '*.sh' \
+            -o -path '*/.profile' \
+            -o -path '*/profile' \
+            -o -name '*.shlib' \
+            ${{ steps.additional.outputs.files }} \
+              ')'\
+            -print); do
+          filepaths+=("$path");
+        done
+
+        for file in $(find "${{ inputs.scandir }}" ${{ steps.exclude.outputs.excludes }} -type f ! -name '*.*' -perm /111  -print); do
+          head -n1 "$file" | grep -Eqs "$shebangregex" || continue
+          filepaths+=("$file");
+        done
+        echo "::set-output name=filepaths::${filepaths[@]}"
 
     - name: Run the file check
       id: check
