@@ -1,6 +1,6 @@
- #!/bin/sh
+#!/bin/sh
  
- set -e
+set -e
 
 ###################################
 ##### function to exit script #####
