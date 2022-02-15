@@ -19,8 +19,9 @@ function exitScript()
 function download_shellcheck()
 {
     download_url="https://github.com/koalaman/shellcheck/releases/download/${INPUT_VERSION}/shellcheck-${INPUT_VERSION}.linux.x86_64.tar.xz"
+    echo $download_url
     curl -Lso "sc.tar.xz" "$download_url" || exitScript "Failed to download shellcheck, exiting..."
-    tar -xfv "sc.tar.xz" || exitScript "Failed to extract shellcheck, exiting..."
+    tar -xf "sc.tar.xz" || exitScript "Failed to extract shellcheck, exiting..."
     mv "shellcheck-${INPUT_VERSION}/shellcheck" "/usr/bin" && rm -f sc.tar.xz
     echo -e "${CYAN}[$SUCCESS] shellcheck downloaded ${RESET}"
 }
