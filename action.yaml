@@ -64,3 +64,4 @@ runs:
         INPUT_IGNORE_PATHS: ${{ inputs.ignore_paths }}
         INPUT_IGNORE_NAMES: ${{ inputs.ignore_names }}
         INPUT_ADDITIONAL_FILES: ${{ inputs.additional_files }}
+        ACTION_PATH: ${{ github.action_path }}
