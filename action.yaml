@@ -56,3 +56,11 @@ runs:
       run: ${{ github.action_path }}/shellcheck.sh
       env:
         INPUT_VERSION: ${{ inputs.version }}
+        INPUT_FORMAT: ${{ inputs.format }}
+        INPUT_SCANDIR: ${{ inputs.scandir }}
+        INPUT_CHECK_TOGETHER: ${{ inputs.check_together }}
+        INPUT_IGNORE: ${{ inputs.ignore }}
+        INPUT_SEVERITY: ${{ inputs.severity }}
+        INPUT_IGNORE_PATHS: ${{ inputs.ignore_paths }}
+        INPUT_IGNORE_NAMES: ${{ inputs.ignore_names }}
+        INPUT_ADDITIONAL_FILES: ${{ inputs.additional_files }}
