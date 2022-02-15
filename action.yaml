@@ -53,4 +53,4 @@ runs:
   steps:
     - name: Run ShellCheck
       shell: bash
-      run: shellcheck.sh
+      run: ./shellcheck.sh
