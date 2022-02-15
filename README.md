@@ -1,4 +1,4 @@
-![Maintainer](https://img.shields.io/badge/Maintained%20By-cloudfy9-brightgreen) 
+![Maintainer](https://img.shields.io/badge/Maintained%20By-cloudfy9-brightgreen) [![GitHub Workflow To Create Release](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml/badge.svg)](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml)
 
 # Introduction
 
