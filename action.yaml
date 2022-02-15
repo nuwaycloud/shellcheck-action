@@ -54,3 +54,5 @@ runs:
     - name: Run ShellCheck
       shell: bash
       run: ${{ github.action_path }}/shellcheck.sh
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
