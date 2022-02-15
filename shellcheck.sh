@@ -33,7 +33,7 @@ function combine_passed_options()
 {
     [ -n "${INPUT_SEVERITY}" ] && options+=("-S ${INPUT_SEVERITY}")
     options+=("--format=${INPUT_FORMAT}")
-    echo "::set-output name=options::${options[@]}"
+    echo "::set-output name=options::${options[*]}"
     echo -e "${CYAN}[$SUCCESS] shellcheck passed options gathered ${RESET}"
 }
 
@@ -125,7 +125,7 @@ function run_shellcheck()
     else
       for file in $filepaths; do
          echo "::debug::Checking $file"
-         shellcheck $options $file || exitScript "ShellCheck found linting issue in file $file, exiting..."
+         shellcheck $options[*] $file || exitScript "ShellCheck found linting issue in file $file, exiting..."
       done
     fi
     echo -e "${CYAN}[$SUCCESS] shellcheck executed ${RESET}"
