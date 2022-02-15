@@ -22,7 +22,7 @@ function download_shellcheck()
     echo $download_url
     curl -Lso "sc.tar.xz" "$download_url" || exitScript "Failed to download shellcheck, exiting..."
     tar -xf "sc.tar.xz" || exitScript "Failed to extract shellcheck, exiting..."
-    mv "shellcheck-${INPUT_VERSION}/shellcheck" "/usr/bin" && rm -f sc.tar.xz
+    mv "shellcheck-${INPUT_VERSION}/shellcheck" "${ACTION_PATH}/shellcheck" && rm -f sc.tar.xz
     echo -e "${CYAN}[$SUCCESS] shellcheck downloaded ${RESET}"
 }
 
@@ -64,7 +64,7 @@ function gather_excluded_paths()
        echo "::debug:: Adding "$name" to excludes"
        excludes+=("! -name $name")
     done
-    echo "::set-output name=excludes::${excludes[@]}"
+    echo "::set-output name=excludes::${excludes[*]}"
     echo -e "${CYAN}[$SUCCESS] shellcheck excluded paths gathered ${RESET}"
 }
 
@@ -111,7 +111,7 @@ function gather_file_paths()
         head -n1 "$file" | grep -Eqs "$shebangregex" || continue
         filepaths+=("$file");
     done
-    echo "::set-output name=filepaths::${filepaths[@]}"
+    echo "::set-output name=filepaths::${filepaths[*]}"
     echo -e "${CYAN}[$SUCCESS] shellcheck file paths gathered ${RESET}"
 }
 
