@@ -18,7 +18,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: main,master
-          dry_run: true
+          dry_run: false
           create_annotated_tag: true
           append_to_pre_release_tag: ${{ steps.jira_issue_finder.outputs.jira_issue }}
 
