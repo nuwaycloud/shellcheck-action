@@ -1,11 +1,9 @@
 name: GitHub Workflow To Create Release
+
 on:
   push:
     tags:
       - 'v*'
-
-name: Create Release
-
 jobs:
   build:
     name: Create Action Release
