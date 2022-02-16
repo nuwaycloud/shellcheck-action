@@ -129,7 +129,7 @@ function run_shellcheck()
       done
     fi
     echo -e "${CYAN}[$SUCCESS] shellcheck executed ${RESET}"
-    echo -e "${GREEN} Congratulations!!! All checks passed. ${RESET}
+    echo -e "${GREEN} Congratulations!!! All checks passed. ${RESET}"
 }
 
 RED='\033[0;31m'
