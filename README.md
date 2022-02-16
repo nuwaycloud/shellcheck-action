@@ -109,7 +109,7 @@ If running the latest stable version of Shellcheck is not to your liking, you ca
 ```
 
 ## Contributing
-We would love you to contribute to `@cfy9/shellchecker-action`, pull requests are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+We would love you to contribute to `@cfy9/shellcheck-action`, pull requests are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
 ## License
 The scripts and documentation in this project are released under the [MIT License](LICENSE)
