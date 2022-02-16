@@ -120,7 +120,7 @@ function gather_file_paths()
 #############################################
 function run_shellcheck()
 {
-    echo "Options - $options[*]"
+    echo "Options - ${options[*]}"
     if [[ -n "${INPUT_CHECK_TOGETHER}" ]]; then
       shellcheck $options $filepaths || exitScript "ShellCheck found linting issue in one or more files, exiting..."
     else
