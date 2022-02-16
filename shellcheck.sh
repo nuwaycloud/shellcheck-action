@@ -126,7 +126,7 @@ function run_shellcheck()
     else
       for file in $filepaths; do
          echo "::debug::Checking $file"
-         shellcheck $options[*] $file || exitScript "ShellCheck found linting issue in file $file, exiting..."
+         shellcheck $options $file || exitScript "ShellCheck found linting issue in file $file, exiting..."
       done
     fi
     echo -e "${CYAN}[$SUCCESS] shellcheck executed ${RESET}"
