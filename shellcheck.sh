@@ -31,7 +31,6 @@ function download_shellcheck()
 ##################################################
 function combine_passed_options()
 {
-    echo "Severity: ${INPUT_SEVERITY}"
     [ -n "${INPUT_SEVERITY}" ] && options+=("--severity=${INPUT_SEVERITY}")
     options+=("--format=${INPUT_FORMAT}")
     echo "::set-output name=options::${options[*]}"
@@ -121,6 +120,7 @@ function gather_file_paths()
 #############################################
 function run_shellcheck()
 {
+    echo "Options - $options[*]"
     if [[ -n "${INPUT_CHECK_TOGETHER}" ]]; then
       shellcheck $options $filepaths || exitScript "ShellCheck found linting issue in one or more files, exiting..."
     else
