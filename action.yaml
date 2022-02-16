@@ -1,4 +1,4 @@
-name: "ShellCheck"
+name: "Shellcheck"
 author: "Cloudfy9 <contact@cloudfy9.com>"
 description: "GitHub action for ShellCheck."
 inputs:
