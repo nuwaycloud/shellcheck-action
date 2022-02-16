@@ -22,6 +22,6 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
-            - Implemented ShellCheck syntax checker
+            - Implemented shell script syntax checker
           draft: false
           prerelease: false
