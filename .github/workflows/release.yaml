@@ -1,17 +1,18 @@
-name: GitHub Workflow To Create Release
-
 on:
   push:
     tags:
       - 'v*'
+
+name: Create Release
+
 jobs:
   build:
-    name: Create Action Release
+    name: Create Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
+        
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -22,6 +23,6 @@ jobs:
           release_name: Release ${{ github.ref }}
           body: |
             Changes in this Release
-            - Implemented shell script syntax checker
+            - Added code to perform shell scripting linting
           draft: false
           prerelease: false
