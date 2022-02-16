@@ -31,6 +31,7 @@ function download_shellcheck()
 ##################################################
 function combine_passed_options()
 {
+    echo "Severity: ${INPUT_SEVERITY}"
     [ -n "${INPUT_SEVERITY}" ] && options+=("--severity=${INPUT_SEVERITY}")
     options+=("--format=${INPUT_FORMAT}")
     echo "::set-output name=options::${options[*]}"
