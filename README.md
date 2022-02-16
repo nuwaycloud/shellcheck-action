@@ -1,4 +1,4 @@
-![Maintainer](https://img.shields.io/badge/Maintained%20By-cloudfy9-brightgreen) [![GitHub Workflow To Create Release](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml/badge.svg)](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml)
+![Maintainer](https://img.shields.io/badge/Maintained%20By-cloudfy9-brightgreen) [![ShellCheck GitHub Action Workflow](https://github.com/cfy9/shellcheck-action/actions/workflows/main.yaml/badge.svg)](https://github.com/cfy9/shellcheck-action/actions/workflows/main.yaml) [![GitHub Workflow To Create Release](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml/badge.svg)](https://github.com/cfy9/shellcheck-action/actions/workflows/release.yaml)
 
 # Introduction
 
@@ -108,3 +108,8 @@ If running the latest stable version of Shellcheck is not to your liking, you ca
        version: v0.7.0
 ```
 
+## Contributing
+We would love you to contribute to `@cfy9/shellchecker-action`, pull requests are welcome! Please see the [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
+
+## License
+The scripts and documentation in this project are released under the [MIT License](LICENSE)
